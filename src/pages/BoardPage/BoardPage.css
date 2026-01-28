@@ -8,22 +8,21 @@
 .container {
   max-width: 100%;
   margin: 0;
-  padding: 0 24px;
+  padding: 0 24px !important;
 }
 
 .header {
   background: white;
-  padding: 15px 0;
+  padding:0;
   box-shadow: 0 2px 4px rgba(0,0,0,0.1);
   margin-bottom: 30px;
+  width: 100%;
 }
 
 .header-content {
   max-width: 100%;
-  margin: 0;
-  padding: 0 24px;
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-start;
   align-items: center;
 }
 
@@ -34,6 +33,7 @@
   padding: 8px 15px;
   border-radius: 4px;
   transition: all 0.2s;
+  margin-right: auto; 
 }
 
 .nav-link:hover {
@@ -46,6 +46,14 @@
   background: white;
   border-radius: 8px;
   box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  box-sizing: border-box;
+  width:100vw !important;
+  margin-left: -50vw !important;
+  left: 50% !important;
+  right: -50vw !important;
+  position: relative !important;
+  
+
 }
 
 .board-header h1 {
@@ -53,6 +61,8 @@
   font-size: 28px;
   margin: 0;
   cursor: pointer;
+  padding: 0 24px;
+
 }
 
 .board-header h1:hover {
@@ -63,8 +73,12 @@
   display: flex;
   flex-wrap: wrap;
   gap: 20px;
-  padding: 10px 0 40px;
+  padding: 0;
   min-height: 70vh;
+  width: 100%;
+  box-sizing: border-box;
+  justify-content: flex-start;
+  margin-top: 0;
 }
 
 .list-card {
@@ -79,6 +93,7 @@
   flex-direction: column;
   transition: all 0.3s ease;
   flex-shrink: 0;
+  margin: 0;
 }
 
 .list-header {
@@ -377,7 +392,7 @@
 @media (max-width: 768px) {
   .container,
   .header-content {
-    padding: 0 15px;
+    padding:0;
   }
   
   .board-header {
@@ -403,8 +418,8 @@
 
 @media (max-width: 480px) {
   .container,
-  .header-content {
-    padding: 0 12px;
+  .headerContent {
+    padding: 0;
   }
   
   .board-header {

@@ -1,0 +1,13 @@
+.modalBody {
+    padding: 25px;
+    box-sizing: border-box;
+  }
+  
+  .modalFooter {
+    padding: 20px 25px;
+    border-top: 1px solid #e9ecef;
+    display: flex;
+    justify-content: flex-end;
+    gap: 15px;
+    box-sizing: border-box;
+  }

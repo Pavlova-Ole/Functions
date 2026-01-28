@@ -1,0 +1,40 @@
+.icon {
+    display: inline-block;
+    vertical-align: middle;
+    flex-shrink: 0;
+  }
+ 
+  .small {
+    width: 16px;
+    height: 16px;
+  }
+  
+  .medium {
+    width: 20px;
+    height: 20px;
+  }
+  
+  .large {
+    width: 24px;
+    height: 24px;
+  }
+
+  .primary {
+    fill: #007bff;
+  }
+  
+  .secondary {
+    fill: #6c757d;
+  }
+  
+  .danger {
+    fill: #dc3545;
+  }
+  
+  .success {
+    fill: #28a745;
+  }
+  
+  button:hover .icon {
+    opacity: 0.9;
+  }
