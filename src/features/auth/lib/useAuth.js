@@ -1,37 +1,42 @@
-import { useState, useEffect } from 'react';
+import { useState, useCallback } from 'react';
+import { authApi } from './api/authApi';
 
 export function useAuth() {
-  const [user, setUser] = useState(() => {
-    try {
-      const savedUser = localStorage.getItem('kanban_user');
-      return savedUser ? JSON.parse(savedUser) : null;
-    } catch {
-      return null;
-    }
-  });
+  const [user, setUser] = useState(authApi.getUser);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState(null);
 
-  useEffect(() => {
-    if (user) {
-      localStorage.setItem('kanban_user', JSON.stringify(user));
-    } else {
-      localStorage.removeItem('kanban_user');
-    }
-  }, [user]);
+  const register = useCallback(async (userData) => {
+    setIsLoading(true);
+    setError(null);
+    const result = await authApi.register(userData);
+    if (result.success) setUser(result.data.user);
+    else setError(result.error);
+    setIsLoading(false);
+    return result;
+  }, []);
 
-  const login = (userData) => {
-    console.log('login вызван');
-    const user = userData || { email: 'test@example.com' };
-    setUser(user);
-    return user;
-  };
+  const login = useCallback(async (credentials) => {
+    setIsLoading(true);
+    setError(null);
+    const result = await authApi.login(credentials);
+    if (result.success) setUser(result.data.user);
+    else setError(result.error);
+    setIsLoading(false);
+    return result;
+  }, []);
 
-  const logout = () => {
-    console.log('logout вызван');
+  const logout = useCallback(() => {
+    authApi.logout();
     setUser(null);
-  };
+    setError(null);
+  }, []);
 
   return {
     user,
+    isLoading,
+    error,
+    register,
     login,
     logout,
     isAuthenticated: !!user

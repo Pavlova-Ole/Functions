@@ -3,8 +3,9 @@ import { Link } from 'react-router-dom';
 import { Button } from '../../../../shared/ui/Button/Button';
 import { Input } from '../../../../shared/ui/Input/Input';
 import { IconButton } from '../../../../shared/ui/IconButton/IconButton';
-import styles from './BoardCard.module.css';
 import { EditIcon, DeleteIcon } from '../../../../shared/ui/Icon/index';
+import { ENUM_LINK, ENUM_TEXT } from '../../../../shared/constants';
+import styles from './BoardCard.module.css';
 
 export const BoardCard = ({ 
   board, 
@@ -26,11 +27,11 @@ export const BoardCard = ({
   };
 
   const handleCardClick = (e) => {
-
     if (e.target.closest(`.${styles.boardActions}`)) {
       return;
     }
   };
+
   const handleIconClick = (e, action) => {
     e.preventDefault(); 
     e.stopPropagation(); 
@@ -54,14 +55,14 @@ export const BoardCard = ({
               onClick={() => onEdit(null)}
               className={styles.btnSmall}
             >
-              Отмена
+              {ENUM_TEXT.FORM_CANCEL}
             </Button>
             <Button 
               variant="primary"
               onClick={handleSave}
               className={styles.btnSmall}
             >
-              Сохранить
+              {ENUM_TEXT.FORM_SAVE}
             </Button>
           </div>
         </div>
@@ -71,7 +72,7 @@ export const BoardCard = ({
 
   return (
     <Link 
-      to={`/boards/${board.id}`} 
+      to={ENUM_LINK.getBoardPath(board.id)} 
       className={styles.boardCardLink}
       onClick={handleCardClick}
     >
@@ -79,23 +80,23 @@ export const BoardCard = ({
         <div className={styles.boardHeader}>
           <h3 className={styles.boardTitle}>{board.name}</h3>
           <div className={styles.boardActions}>
-          <IconButton 
+            <IconButton 
               onClick={(e) => handleIconClick(e, () => onEdit(board.id))} 
-              title="Редактировать"
+              title={ENUM_TEXT.FORM_EDIT}
             >
               <EditIcon size={18} />
             </IconButton>
 
             <IconButton 
               onClick={(e) => handleIconClick(e, () => onDelete(board.id))} 
-              title="Удалить"
+              title={ENUM_TEXT.FORM_DELETE}
             >
               <DeleteIcon size={18} />
-          </IconButton>
+            </IconButton>
           </div>
         </div>
         <div className={styles.boardFooter}>
-          <span className={styles.boardInfo}>Нажмите для открытия</span>
+          <span className={styles.boardInfo}>{ENUM_TEXT.BOARD_CLICK_TO_OPEN}</span>
         </div>
       </div>
     </Link>

@@ -3,6 +3,7 @@ import { IconButton } from '../../../../shared/ui/IconButton/IconButton';
 import { Button } from '../../../../shared/ui/Button/Button';
 import { Input } from '../../../../shared/ui/Input/Input';
 import { CircleIcon, CheckIcon, EditIcon, DeleteIcon } from '../../../../shared/ui/Icon/Icon';
+import { ENUM_TEXT } from '../../../../shared/constants';
 import styles from './TaskItem.module.css';
 
 export const TaskItem = ({ 
@@ -60,14 +61,14 @@ export const TaskItem = ({
             size="small"
             onClick={handleSaveEdit}
           >
-            Сохранить
+            {ENUM_TEXT.FORM_SAVE}
           </Button>
           <Button 
             variant="secondary" 
             size="small"
             onClick={handleCancelEdit}
           >
-            Отмена
+            {ENUM_TEXT.FORM_CANCEL}
           </Button>
         </div>
       </div>
@@ -89,19 +90,19 @@ export const TaskItem = ({
         <div className={styles.taskActions}>
           <IconButton 
             onClick={(e) => handleIconClick(e, onToggle)}
-            title={task.active ? 'Завершить' : 'Активировать'}
+            title={task.active ? ENUM_TEXT.TASK_COMPLETE : ENUM_TEXT.TASK_ACTIVATE}
           >
             {task.active ? <CircleIcon size={16} /> : <CheckIcon size={16} />}
           </IconButton>
           <IconButton
             onClick={(e) => handleIconClick(e, () => setIsEditing(true))}
-            title="Редактировать"
+            title={ENUM_TEXT.FORM_EDIT}
           >
             <EditIcon size={16} />
           </IconButton>
           <IconButton 
             onClick={(e) => handleIconClick(e, onDelete)} 
-            title="Удалить"
+            title={ENUM_TEXT.FORM_DELETE}
           >
             <DeleteIcon size={16} />
           </IconButton>
