@@ -1,45 +1,69 @@
 import { useState, useEffect, useCallback } from 'react';
+import { ENUM_TEXT } from '../../../shared/constants';
 
 export function useBoardContent(boardId) {
-  const [lists, setLists] = useState(() => {
-    const savedLists = localStorage.getItem(`boardLists_${boardId}`);
-    if (savedLists) return JSON.parse(savedLists);
-    
-    if (parseInt(boardId) === 1) {
-      return [
-        { 
-          id: 1, 
-          name: 'Список 1', 
-          tasks: [
-            { id: 1, text: 'Первая задача', active: true },
-            { id: 2, text: 'Вторая задача', active: true }
-          ]
-        },
-        { 
-          id: 2, 
-          name: 'Список 2', 
-          tasks: [
-            { id: 3, text: 'Третья задача', active: true }
-          ]
-        },
-        { 
-          id: 3, 
-          name: 'Список 3', 
-          tasks: [] 
-        }
-      ];
-    }
-    return [];
-  });
+  const [lists, setLists] = useState([]);
+  const [boardName, setBoardName] = useState('');
+  const [isLoading, setIsLoading] = useState(true);
 
-  const [boardName, setBoardName] = useState(() => {
-    const savedBoardNames = localStorage.getItem('boardNames');
-    if (savedBoardNames) {
-      const boardNames = JSON.parse(savedBoardNames);
-      return boardNames[boardId] || `Доска ${boardId}`;
-    }
-    return `Доска ${boardId}`;
-  });
+  useEffect(() => {
+    const loadInitialData = () => {
+      try {
+       
+        const savedLists = localStorage.getItem(`boardLists_${boardId}`);
+        if (savedLists) {
+          setLists(JSON.parse(savedLists));
+        } else {
+          
+          if (parseInt(boardId) === 1) {
+            const initialLists = [
+              { 
+                id: 1, 
+                name: ENUM_TEXT.LIST_1, 
+                tasks: [
+                  { id: 1, text: ENUM_TEXT.TASK_FIRST, active: true },
+                  { id: 2, text: ENUM_TEXT.TASK_SECOND, active: true }
+                ]
+              },
+              { 
+                id: 2, 
+                name: ENUM_TEXT.LIST_2, 
+                tasks: [
+                  { id: 3, text: ENUM_TEXT.TASK_THIRD, active: true }
+                ]
+              },
+              { 
+                id: 3, 
+                name: ENUM_TEXT.LIST_3, 
+                tasks: [] 
+              }
+            ];
+            setLists(initialLists);
+            localStorage.setItem(`boardLists_${boardId}`, JSON.stringify(initialLists));
+          } else {
+           
+            setLists([]);
+            localStorage.setItem(`boardLists_${boardId}`, JSON.stringify([]));
+          }
+        }
+
+        const savedBoardNames = localStorage.getItem('boardNames');
+        if (savedBoardNames) {
+          const boardNames = JSON.parse(savedBoardNames);
+          setBoardName(boardNames[boardId] || ENUM_TEXT.TEST_BOARD_DEFAULT(boardId));
+        } else {
+          setBoardName(ENUM_TEXT.TEST_BOARD_DEFAULT(boardId));
+        }
+      } catch (error) {
+        console.error('Ошибка при загрузке данных доски:', error);
+        setLists([]);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadInitialData();
+  }, [boardId]);
 
   useEffect(() => {
     localStorage.setItem(`boardLists_${boardId}`, JSON.stringify(lists));
@@ -160,6 +184,7 @@ export function useBoardContent(boardId) {
     deleteTask,
     moveTask,
     getNextTaskId,
-    getNextListId
+    getNextListId,
+    isLoading
   };
 }

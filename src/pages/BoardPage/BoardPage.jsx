@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { useBoardContent } from '../../features/boards/lib/useBoardContent';
 import { ListCard } from '../../features/boards/ui/ListCard/ListCard';
 import { Input } from '../../shared/ui/Input/Input';
 import { Button } from '../../shared/ui/Button/Button';
+import { ENUM_LINK, ENUM_TEXT } from '../../shared/constants';
 import './BoardPage.css';
 
 const BoardPage = () => {
@@ -69,6 +70,16 @@ const BoardPage = () => {
     setEditingListId(null);
   };
 
+  const handleTaskToggle = (listId, taskId) => {
+    const list = lists.find(l => l.id === listId);
+    if (!list) return;
+    
+    const task = list.tasks.find(t => t.id === taskId);
+    if (!task) return;
+    
+    updateTask(listId, taskId, { active: !task.active });
+  };
+
   const handleDragStart = (e, taskId, listId) => {
     e.dataTransfer.setData('taskId', taskId.toString());
     e.dataTransfer.setData('listId', listId.toString());
@@ -104,6 +115,11 @@ const BoardPage = () => {
     }
   };
 
+  const createTaskDragHandler = (taskId, listId) => {
+    return (e) => handleDragStart(e, taskId, listId);
+  };
+
+
   const handleKeyPress = (e, action) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
@@ -111,11 +127,52 @@ const BoardPage = () => {
     }
   };
 
+  
+  const listCardCommonProps = useMemo(() => ({
+    onEditStart: handleEditListStart,
+    onEditSave: handleSaveListEdit,
+    onEditCancel: handleCancelListEdit,
+    onDelete: deleteList,
+    onTaskCreate: createTask,
+    onTaskUpdate: updateTask,
+    onTaskDelete: deleteTask,
+    onTaskToggle: handleTaskToggle,
+    onDragLeave: handleDragLeave, 
+    onDragEnd: handleDragEnd,
+  }), [
+    handleEditListStart, 
+    handleSaveListEdit, 
+    handleCancelListEdit, 
+    deleteList, 
+    createTask, 
+    updateTask, 
+    deleteTask, 
+    handleTaskToggle,
+    handleDragLeave, 
+    handleDragEnd
+  ]);
+
+  const renderListCard = (list) => {
+    const listProps = {
+      key: list.id,
+      list,
+      isEditing: editingListId === list.id,
+      isDragOver: draggingOverListId === list.id,
+      onDragOver: (e) => handleDragOver(e, list.id),
+      onDrop: (e) => handleDrop(e, list.id),
+      onTaskDragStart: (taskId) => createTaskDragHandler(taskId, list.id),
+    };
+
+    return <ListCard {...listProps} {...listCardCommonProps} />;
+  };
+
   return (
     <div className="board-page">
       <header className="header">
         <div className="header-content">
-          <Link to="/boards" className="nav-link">← Назад к доскам</Link>
+          <Link to={ENUM_LINK.BOARDS} className="nav-link">
+            {ENUM_TEXT.NAV_BACK_TO_BOARDS}
+          </Link>
         </div>
       </header>
 
@@ -136,10 +193,10 @@ const BoardPage = () => {
               />
               <div className="board-name-edit-buttons">
                 <Button variant="primary" size="small" onClick={handleSaveBoardName}>
-                  Сохранить
+                  {ENUM_TEXT.FORM_SAVE}
                 </Button>
                 <Button variant="secondary" size="small" onClick={handleCancelEditBoardName}>
-                  Отмена
+                  {ENUM_TEXT.FORM_CANCEL}
                 </Button>
               </div>
             </div>
@@ -151,36 +208,14 @@ const BoardPage = () => {
         </div>
 
         <div className="lists-container">
-          {lists.map(list => (
-            <ListCard
-              key={list.id}
-              list={list}
-              isEditing={editingListId === list.id}
-              isDragOver={draggingOverListId === list.id}
-              onEditStart={handleEditListStart}
-              onEditSave={handleSaveListEdit}
-              onEditCancel={handleCancelListEdit}
-              onDelete={() => deleteList(list.id)}
-              onTaskCreate={(listId, text) => createTask(listId, text)}
-              onTaskUpdate={(listId, taskId, updates) => updateTask(listId, taskId, updates)}
-              onTaskDelete={(listId, taskId) => deleteTask(listId, taskId)}
-              onTaskToggle={(listId, taskId) => updateTask(listId, taskId, { active: !list.tasks.find(t => t.id === taskId)?.active })}
-              onDragOver={(e) => handleDragOver(e, list.id)}
-              onDragLeave={handleDragLeave}
-              onDrop={(e) => handleDrop(e, list.id)}
-              onTaskDragStart={(taskId) => {
-                return (e) => handleDragStart(e, taskId, list.id);
-              }}
-              onTaskDragEnd={handleDragEnd}
-            />
-          ))}
+          {lists.map(renderListCard)}
           
           {isCreatingList ? (
             <div className="list-card new-list-form">
               <div className="list-form-header">
                 <Input
                   type="text"
-                  placeholder="Введите название списка..."
+                  placeholder={ENUM_TEXT.LIST_NAME_PLACEHOLDER}
                   value={newListName}
                   onChange={(e) => setNewListName(e.target.value)}
                   onKeyPress={(e) => handleKeyPress(e, handleCreateList)}
@@ -190,16 +225,16 @@ const BoardPage = () => {
               </div>
               <div className="list-form-actions">
                 <Button variant="primary" onClick={handleCreateList}>
-                  Сохранить
+                  {ENUM_TEXT.FORM_SAVE}
                 </Button>
                 <Button variant="secondary" onClick={() => setIsCreatingList(false)}>
-                  Отмена
+                  {ENUM_TEXT.FORM_CANCEL}
                 </Button>
               </div>
             </div>
           ) : (
             <button className="add-list-button" onClick={() => setIsCreatingList(true)}>
-              <span>Добавить список</span>
+              <span>{ENUM_TEXT.LIST_ADD}</span>
             </button>
           )}
         </div>

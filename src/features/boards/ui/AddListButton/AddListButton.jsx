@@ -37,7 +37,7 @@ export const AddListButton = ({ onCreateList }) => {
           placeholder="Введите название списка..."
           value={listName}
           onChange={(e) => setListName(e.target.value)}
-          onKeyPress={handleKeyPress}
+          onKeyPress={handleKeyDown}
           autoFocus
           fullWidth
         />
