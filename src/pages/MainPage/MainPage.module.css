@@ -2,23 +2,26 @@
   min-height: 100vh;
   background-color: #f5f7fa;
   width: 100%;
-  overflow-x: hidden;
 }
 
-.header {
+.mainContent {
+  width: 100%;
+  padding: 0;
+}
+
+.pageHeaderContainer {
+  width: 100%;
+  padding: 0 24px;
   background: white;
-  padding: 15px 0;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-  margin-bottom: 20px;
+  border-bottom: 2px solid #e9ecef;
 }
 
-.headerContent {
+.pageHeader {
   max-width: none;
-  margin: 0 auto;
-  padding: 0 20px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+.mainPage {
+  min-height: 100vh;
+  background-color: #f5f7fa;
+  width: 100%;
 }
 
 .mainContent {
@@ -49,8 +52,32 @@
   margin: 0;
 }
 
+.userWelcome {
+  color: #666;
+  font-size: 14px;
+  margin-top: 5px;
+  font-style: italic;
+}
+
+.headerActions {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
 .newBoardBtn {
   margin-left: auto;
+}
+
+.logoutBtn {
+  background-color: #f8f9fa;
+  color: #6c757d;
+  border: 1px solid #dee2e6;
+}
+
+.logoutBtn:hover {
+  background-color: #e9ecef;
+  color: #495057;
 }
 
 .boardsContainer {
@@ -64,8 +91,6 @@
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
   gap: 24px;
-  justify-content: start;
-  justify-items: stretch;
 }
 
 .boardCard {
@@ -75,12 +100,6 @@
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
   transition: all 0.3s ease;
   border: 2px solid transparent;
-  min-height: 180px;
-  display: flex;
-  flex-direction: column;
-  width: 100%; 
-  height: 100%; 
-  box-sizing: border-box;
 }
 
 .boardCard:hover {
@@ -94,26 +113,48 @@
   justify-content: space-between;
   align-items: flex-start;
   margin-bottom: 20px;
-  flex-grow: 1;
 }
 
 .boardTitle {
   color: #333;
-  text-decoration: none;
   font-size: 20px;
   font-weight: 600;
   flex-grow: 1;
   margin-right: 15px;
 }
 
-.boardTitle:hover {
-  color: #007bff;
-}
-
 .boardActions {
   display: flex;
   gap: 8px;
   flex-shrink: 0;
+}
+
+.editBtn, .deleteBtn, .saveBtn, .cancelBtn {
+  padding: 6px 12px;
+  border-radius: 4px;
+  border: none;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.editBtn {
+  background-color: #3b82f6;
+  color: white;
+}
+
+.deleteBtn {
+  background-color: #ef4444;
+  color: white;
+}
+
+.saveBtn {
+  background-color: #10b981;
+  color: white;
+}
+
+.cancelBtn {
+  background-color: #6b7280;
+  color: white;
 }
 
 .boardFooter {
@@ -166,13 +207,21 @@
   padding: 25px;
 }
 
-.modalHeader h3 {
-  margin: 0;
+.modalContent h3 {
+  margin: 0 0 20px 0;
   color: #333;
   font-size: 22px;
   font-weight: 600;
   text-align: center;
+}
+
+.modalInput {
+  width: 100%;
+  padding: 10px;
   margin-bottom: 20px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 16px;
 }
 
 .modalFooter {
@@ -180,4 +229,92 @@
   justify-content: flex-end;
   gap: 15px;
   margin-top: 20px;
+}
+
+.modalCancelBtn {
+  padding: 10px 20px;
+  background: #f3f4f6;
+  color: #4b5563;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.modalCreateBtn {
+  padding: 10px 20px;
+  background: #2563eb;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+  margin: 0 auto;
+  padding: 30px 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.pageHeader h1 {
+  color: #333;
+  font-size: 32px;
+  font-weight: 600;
+  margin: 0;
+}
+
+.userWelcome {
+  color: #666;
+  font-size: 14px;
+  margin-top: 5px;
+  font-style: italic;
+}
+
+.headerActions {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.newBoardBtn {
+  margin-left: auto;
+}
+
+.logoutBtn {
+  background-color: #f8f9fa;
+  color: #6c757d;
+  border: 1px solid #dee2e6;
+}
+
+.logoutBtn:hover {
+  background-color: #e9ecef;
+  color: #495057;
+}
+
+.boardsContainer {
+  width: 100%;
+  padding: 30px 24px;
+  max-width: none;
+  margin: 0 auto; 
+}
+
+.boardsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 24px;
+}
+
+.emptyState {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 60px 20px;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  margin: 30px 0;
+}
+
+.emptyState p {
+  color: #6c757d;
+  font-size: 18px;
+  margin: 0;
 }

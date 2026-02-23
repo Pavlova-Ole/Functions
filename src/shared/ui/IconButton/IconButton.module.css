@@ -1,38 +1,38 @@
 .iconButton {
-    background: none;
-    border: none;
-    cursor: pointer;
-    font-size: 18px;
-    padding: 6px;
-    border-radius: 6px;
-    transition: all 0.2s ease;
-    width: 36px;
-    height: 36px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: #6c757d;
-    flex-shrink: 0;
-  }
-  
-  .iconButton:hover:not(:disabled) {
-    background-color: #f8f9fa;
-    color: #333;
-    transform: scale(1.1);
-  }
-  
-  .iconButton:focus {
-    outline: 2px solid #007bff;
-    outline-offset: 2px;
-  }
-  
-  .iconButton.disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-  }
-  
-  .iconButton.disabled:hover {
-    background: none;
-    color: #6c757d;
-    transform: none;
-  }
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 18px;
+  padding: 6px;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #6c757d;
+  flex-shrink: 0;
+}
+
+.iconButton:hover:not(:disabled) {
+  background-color: #f8f9fa;
+  color: #333;
+  transform: scale(1.1);
+}
+
+.iconButton:focus {
+  outline: 2px solid #007bff;
+  outline-offset: 2px;
+}
+
+.iconButton.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.iconButton.disabled:hover {
+  background: none;
+  color: #6c757d;
+  transform: none;
+}

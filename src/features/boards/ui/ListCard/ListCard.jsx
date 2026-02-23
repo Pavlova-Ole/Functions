@@ -4,6 +4,7 @@ import { Button } from '../../../../shared/ui/Button/Button';
 import { Input } from '../../../../shared/ui/Input/Input';
 import { TaskItem } from '../TaskItem/TaskItem';
 import { EditIcon, DeleteIcon } from '../../../../shared/ui/Icon/Icon';
+import { ENUM_TEXT } from '../../../../shared/constants';
 import styles from './ListCard.module.css';
 
 export const ListCard = ({ 
@@ -31,7 +32,9 @@ export const ListCard = ({
   const handleIconClick = (e, action) => {
     e.preventDefault();
     e.stopPropagation();
-    if (action) action();
+    if (action && typeof action === 'function') {
+      action();
+    }
   };
 
   const handleEditSave = () => {
@@ -40,17 +43,26 @@ export const ListCard = ({
     }
   };
 
-  const handleKeyPress = (e, action) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault();
-      action();
-    }
-  };
-
   const handleCreateTask = () => {
     if (newTaskText.trim()) {
       onTaskCreate(list.id, newTaskText.trim());
       setNewTaskText('');
+    }
+  };
+  
+  const handleListKeyPress = (e) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      handleEditSave();
+    } else if (e.key === 'Escape') {
+      if (onEditCancel) onEditCancel(list.id);
+    }
+  };
+
+  const handleTaskKeyPress = (e) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      handleCreateTask();
     }
   };
 
@@ -61,8 +73,8 @@ export const ListCard = ({
           <Input
             value={editingListName}
             onChange={(e) => setEditingListName(e.target.value)}
-            onKeyPress={(e) => handleKeyPress(e, handleEditSave)}
-            placeholder="Введите новое название..."
+            onKeyDown={handleListKeyPress}
+            placeholder={ENUM_TEXT.LIST_EDIT_PLACEHOLDER}
             autoFocus
             fullWidth
           />
@@ -72,14 +84,14 @@ export const ListCard = ({
               size="small"
               onClick={handleEditSave}
             >
-              Сохранить
+              {ENUM_TEXT.FORM_SAVE}
             </Button>
             <Button 
               variant="secondary" 
               size="small"
               onClick={() => onEditCancel && onEditCancel(list.id)} 
             >
-              Отмена
+              {ENUM_TEXT.FORM_CANCEL}
             </Button>
           </div>
         </div>
@@ -98,19 +110,15 @@ export const ListCard = ({
         <h3>{list.name}</h3>
         <div className={styles.listActions}>
           <IconButton 
-            onClick={(e) => handleIconClick(e, () => {
-              if (onEditStart) onEditStart(list.id);
-            })}
-            title="Редактировать список"
+            onClick={(e) => handleIconClick(e, () => onEditStart && onEditStart(list.id))}
+            title={ENUM_TEXT.FORM_EDIT}
           >
             <EditIcon size={18} />
           </IconButton>
         
           <IconButton 
-            onClick={(e) => handleIconClick(e, () => {
-              if (onDelete) onDelete(list.id);
-            })}
-            title="Удалить список"
+            onClick={(e) => handleIconClick(e, () => onDelete && onDelete(list.id))}
+            title={ENUM_TEXT.FORM_DELETE}
           >
             <DeleteIcon size={18} />
           </IconButton>
@@ -120,7 +128,7 @@ export const ListCard = ({
       <div className={styles.tasksList}>
         {list.tasks.length === 0 ? (
           <div className={styles.emptyTask}>
-            <p>Нет задач</p>
+            <p>{ENUM_TEXT.TASK_NO_TASKS}</p>
           </div>
         ) : (
           list.tasks.map(task => (
@@ -141,10 +149,10 @@ export const ListCard = ({
       <div className={styles.addTaskForm}>
         <Input
           type="text"
-          placeholder="Добавить задачу..."
+          placeholder={ENUM_TEXT.TASK_PLACEHOLDER}
           value={newTaskText}
           onChange={(e) => setNewTaskText(e.target.value)}
-          onKeyPress={(e) => handleKeyPress(e, handleCreateTask)}
+          onKeyDown={handleTaskKeyPress}
           fullWidth
         />
         <Button 
@@ -153,7 +161,7 @@ export const ListCard = ({
           onClick={handleCreateTask}
           disabled={!newTaskText.trim()}
         >
-          Добавить
+          {ENUM_TEXT.FORM_ADD}
         </Button>
       </div>
 

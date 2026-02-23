@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Modal } from '../../../../shared/ui/Modal/Modal';
 import { Input } from '../../../../shared/ui/Input/Input';
 import { Button } from '../../../../shared/ui/Button/Button';
+import { ENUM_TEXT } from '../../../../shared/constants';
 import styles from './BoardModal.module.css';
 
 export const BoardModal = ({ isOpen, onClose, onCreateBoard }) => {
@@ -23,12 +24,12 @@ export const BoardModal = ({ isOpen, onClose, onCreateBoard }) => {
     <Modal
       isOpen={isOpen}
       onClose={onClose}
-      title="Создание новой доски"
+      title={ENUM_TEXT.BOARD_CREATION}
     >
       <div className={styles.modalBody}>
         <Input
           type="text"
-          placeholder="Название доски"
+          placeholder={ENUM_TEXT.BOARD_NAME}
           value={boardName}
           onChange={(e) => setBoardName(e.target.value)}
           onKeyPress={handleKeyPress}
@@ -38,10 +39,10 @@ export const BoardModal = ({ isOpen, onClose, onCreateBoard }) => {
       </div>
       <div className={styles.modalFooter}>
         <Button variant="secondary" onClick={onClose}>
-          Отмена
+          {ENUM_TEXT.FORM_CANCEL}
         </Button>
         <Button variant="primary" onClick={handleSubmit}>
-          Сохранить
+          {ENUM_TEXT.FORM_SAVE}
         </Button>
       </div>
     </Modal>
