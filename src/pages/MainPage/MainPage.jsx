@@ -8,8 +8,9 @@ import { ENUM_TEXT } from '../../shared/constants';
 import styles from './MainPage.module.css';
 
 const MainPage = () => {
-  const { boards, createBoard, updateBoard, deleteBoard } = useBoards();
+  const { boards, isLoading, createBoard, deleteBoard, updateBoard } = useBoards();
   const { user, logout } = useAuth();
+  
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingBoardId, setEditingBoardId] = useState(null);
 
@@ -45,13 +46,8 @@ const MainPage = () => {
     window.location.href = '/auth';
   };
 
-  const openModal = () => {
-    setIsModalOpen(true);
-  };
-
-  const closeModal = () => {
-    setIsModalOpen(false);
-  };
+  const openModal = () => setIsModalOpen(true);
+  const closeModal = () => setIsModalOpen(false);
 
   return (
     <div className={styles.mainPage}>
@@ -68,30 +64,17 @@ const MainPage = () => {
             </div>
             
             <div className={styles.headerActions}>
-              <Button 
-                variant="primary"
-                className={styles.newBoardBtn}
-                onClick={openModal}
-              >
+              <Button variant="primary" className={styles.newBoardBtn} onClick={openModal}>
                 {ENUM_TEXT.BOARD_NEW}
               </Button>
-              
-              <Button 
-                variant="secondary"
-                onClick={handleLogout}
-                className={styles.logoutBtn}
-              >
+              <Button variant="secondary" onClick={handleLogout} className={styles.logoutBtn}>
                 Выйти
               </Button>
             </div>
           </div>
         </div>
 
-        <BoardModal
-          isOpen={isModalOpen}
-          onClose={closeModal}
-          onCreateBoard={handleCreateBoard}
-        />
+        <BoardModal isOpen={isModalOpen} onClose={closeModal} onCreateBoard={handleCreateBoard} />
 
         <div className={styles.boardsContainer}>
           <div className={styles.boardsGrid}>

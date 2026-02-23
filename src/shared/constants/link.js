@@ -1,12 +1,9 @@
 export const ENUM_LINK = {
-    MAIN: '/',
-    AUTH: '/auth',
+    MAIN: '/',               
+    AUTH: '/auth',            
     BOARDS: '/boards',
     BOARD: '/boards/:boardId',
-    
-    getBoardPath: (boardId) => `/boards/${boardId}`,
-   
-    getAuthPath: () => '/auth',
-    
-    getBoardsPath: () => '/boards',
-};
+  };
+
+  export const getBoardPath = (boardId) => `/boards/${boardId}`;
+  

@@ -24,7 +24,6 @@ export const authApi = {
       const response = await axiosInstance.post('/auth/registration', userData);
       
       const token = response.data.access_token || response.data.token;
-      
       console.log('Ответ регистрации:', response.data);
       
       const user = {
@@ -59,7 +58,6 @@ export const authApi = {
       const response = await axiosInstance.post('/auth/login', credentials);
       
       const token = response.data.access_token || response.data.token;
-     
       console.log('Ответ входа:', response.data);
       
       const user = {

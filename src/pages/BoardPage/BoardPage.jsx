@@ -11,16 +11,8 @@ const BoardPage = () => {
   const { boardId } = useParams();
   
   const {
-    boardName,
-    updateBoardName,
-    lists,
-    createList,
-    updateList,
-    deleteList,
-    createTask,
-    updateTask,
-    deleteTask,
-    moveTask
+    boardName, updateBoardName, lists, createList, updateList, 
+    deleteList, createTask, updateTask, deleteTask, moveTask
   } = useBoardContent(boardId);
 
   const [isEditingBoardName, setIsEditingBoardName] = useState(false);
@@ -55,28 +47,19 @@ const BoardPage = () => {
     }
   };
 
-  const handleEditListStart = (listId) => {
-    setEditingListId(listId);
-  };
+  const handleEditListStart = (listId) => { setEditingListId(listId); };
+  const handleCancelListEdit = () => { setEditingListId(null); };
 
   const handleSaveListEdit = (listId, newName) => {
-    if (newName.trim()) {
-      updateList(listId, { name: newName.trim() });
-    }
-    setEditingListId(null);
-  };
-
-  const handleCancelListEdit = () => {
+    if (newName.trim()) updateList(listId, { name: newName.trim() });
     setEditingListId(null);
   };
 
   const handleTaskToggle = (listId, taskId) => {
     const list = lists.find(l => l.id === listId);
     if (!list) return;
-    
     const task = list.tasks.find(t => t.id === taskId);
     if (!task) return;
-    
     updateTask(listId, taskId, { active: !task.active });
   };
 
@@ -106,7 +89,6 @@ const BoardPage = () => {
   const handleDrop = (e, targetListId) => {
     e.preventDefault();
     setDraggingOverListId(null);
-    
     const taskId = parseInt(e.dataTransfer.getData('taskId'));
     const sourceListId = parseInt(e.dataTransfer.getData('listId'));
     
@@ -119,14 +101,12 @@ const BoardPage = () => {
     return (e) => handleDragStart(e, taskId, listId);
   };
 
-
   const handleKeyPress = (e, action) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
       action();
     }
   };
-
   
   const listCardCommonProps = useMemo(() => ({
     onEditStart: handleEditListStart,
@@ -140,16 +120,8 @@ const BoardPage = () => {
     onDragLeave: handleDragLeave, 
     onDragEnd: handleDragEnd,
   }), [
-    handleEditListStart, 
-    handleSaveListEdit, 
-    handleCancelListEdit, 
-    deleteList, 
-    createTask, 
-    updateTask, 
-    deleteTask, 
-    handleTaskToggle,
-    handleDragLeave, 
-    handleDragEnd
+    handleEditListStart, handleSaveListEdit, handleCancelListEdit, deleteList, 
+    createTask, updateTask, deleteTask, handleTaskToggle, handleDragLeave, handleDragEnd
   ]);
 
   const renderListCard = (list) => {
@@ -162,7 +134,6 @@ const BoardPage = () => {
       onDrop: (e) => handleDrop(e, list.id),
       onTaskDragStart: (taskId) => createTaskDragHandler(taskId, list.id),
     };
-
     return <ListCard {...listProps} {...listCardCommonProps} />;
   };
 
@@ -170,12 +141,9 @@ const BoardPage = () => {
     <div className="board-page">
       <header className="header">
         <div className="header-content">
-          <Link to={ENUM_LINK.BOARDS} className="nav-link">
-            {ENUM_TEXT.NAV_BACK_TO_BOARDS}
-          </Link>
+          <Link to={ENUM_LINK.BOARDS} className="nav-link">{ENUM_TEXT.NAV_BACK_TO_BOARDS}</Link>
         </div>
       </header>
-
       <main className="container">
         <div className="board-header">
           {isEditingBoardName ? (
@@ -192,21 +160,14 @@ const BoardPage = () => {
                 fullWidth
               />
               <div className="board-name-edit-buttons">
-                <Button variant="primary" size="small" onClick={handleSaveBoardName}>
-                  {ENUM_TEXT.FORM_SAVE}
-                </Button>
-                <Button variant="secondary" size="small" onClick={handleCancelEditBoardName}>
-                  {ENUM_TEXT.FORM_CANCEL}
-                </Button>
+                <Button variant="primary" size="small" onClick={handleSaveBoardName}>{ENUM_TEXT.FORM_SAVE}</Button>
+                <Button variant="secondary" size="small" onClick={handleCancelEditBoardName}>{ENUM_TEXT.FORM_CANCEL}</Button>
               </div>
             </div>
           ) : (
-            <h1 className="board-title" onClick={handleStartEditBoardName}>
-              {boardName}
-            </h1>
+            <h1 className="board-title" onClick={handleStartEditBoardName}>{boardName}</h1>
           )}
         </div>
-
         <div className="lists-container">
           {lists.map(renderListCard)}
           
@@ -224,12 +185,8 @@ const BoardPage = () => {
                 />
               </div>
               <div className="list-form-actions">
-                <Button variant="primary" onClick={handleCreateList}>
-                  {ENUM_TEXT.FORM_SAVE}
-                </Button>
-                <Button variant="secondary" onClick={() => setIsCreatingList(false)}>
-                  {ENUM_TEXT.FORM_CANCEL}
-                </Button>
+                <Button variant="primary" onClick={handleCreateList}>{ENUM_TEXT.FORM_SAVE}</Button>
+                <Button variant="secondary" onClick={() => setIsCreatingList(false)}>{ENUM_TEXT.FORM_CANCEL}</Button>
               </div>
             </div>
           ) : (

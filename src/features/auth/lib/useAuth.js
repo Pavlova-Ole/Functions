@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react';
-import { authApi } from './api/authApi';
+import { authApi } from '../api/authApi';
 
 export function useAuth() {
   const [user, setUser] = useState(authApi.getUser);

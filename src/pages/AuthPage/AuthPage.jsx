@@ -97,6 +97,11 @@ const AuthPage = () => {
       confirmPassword: ''
     });
   };
+  
+  const getSubmitButtonText = () => {
+    if (isLoading) return 'Загрузка...';
+    return isLogin ? 'Войти' : 'Зарегистрироваться';
+  };
 
   return (
     <div className={styles.authPage}>
@@ -175,7 +180,7 @@ const AuthPage = () => {
             disabled={isLoading}
             className={styles.authButton}
           >
-            {isLoading ? 'Загрузка...' : (isLogin ? 'Войти' : 'Зарегистрироваться')}
+            {getSubmitButtonText()}
           </Button>
         </form>
         

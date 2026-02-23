@@ -1,5 +1,4 @@
-export const ENUM_TEXT ={
-    
+export const ENUM_TEXT = {
     NAV_BACK_TO_BOARDS: 'Назад к доскам',
     
     AUTH_LOGIN: 'Вход в систему',
@@ -50,8 +49,7 @@ export const ENUM_TEXT ={
 
     TEST_BOARD_1: 'Моя доска',
     TEST_BOARD_2: 'Моя доска 2',
-    TEST_BOARD_3: 'Моя доска 3',
-    TEST_BOARD_DEFAULT: (id) => `Доска ${id}`,
+    TEST_BOARD_3: 'Моя доска 3'
 };
 
-export { ENUM_LINK } from './link.js';
+export { ENUM_LINK, getBoardPath } from './link.js';

@@ -4,7 +4,7 @@ import { Button } from '../../../../shared/ui/Button/Button';
 import { Input } from '../../../../shared/ui/Input/Input';
 import { IconButton } from '../../../../shared/ui/IconButton/IconButton';
 import { EditIcon, DeleteIcon } from '../../../../shared/ui/Icon/index';
-import { ENUM_LINK, ENUM_TEXT } from '../../../../shared/constants';
+import { ENUM_TEXT, getBoardPath } from '../../../../shared/constants';
 import styles from './BoardCard.module.css';
 
 export const BoardCard = ({ 
@@ -72,7 +72,7 @@ export const BoardCard = ({
 
   return (
     <Link 
-      to={ENUM_LINK.getBoardPath(board.id)} 
+      to={getBoardPath(board.id)} 
       className={styles.boardCardLink}
       onClick={handleCardClick}
     >
