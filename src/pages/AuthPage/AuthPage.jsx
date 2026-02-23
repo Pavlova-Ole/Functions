@@ -102,7 +102,6 @@ const AuthPage = () => {
     if (isLoading) return 'Загрузка...';
     return isLogin ? 'Войти' : 'Зарегистрироваться';
   };
-
   return (
     <div className={styles.authPage}>
       <Card className={styles.authContainer}>
