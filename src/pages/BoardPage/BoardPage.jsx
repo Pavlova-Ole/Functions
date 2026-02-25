@@ -1,163 +1,181 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import { useBoardContent } from '../../features/boards/lib/useBoardContent';
+import {
+  useGetBoardsQuery, useEditBoardMutation,
+  useGetListsQuery, useCreateListMutation, useEditListMutation, useDeleteListMutation,
+  useGetTasksQuery, useCreateTaskMutation, useEditTaskMutation, useDeleteTaskMutation
+} from '../../shared/api/apiSlice';
 import { ListCard } from '../../features/boards/ui/ListCard/ListCard';
 import { Input } from '../../shared/ui/Input/Input';
 import { Button } from '../../shared/ui/Button/Button';
 import { ENUM_LINK, ENUM_TEXT } from '../../shared/constants';
 import './BoardPage.css';
 
+const ListCardWrapper = ({ 
+  list, boardId, editingListId, draggingOverListId,
+  handleEditListStart, handleCancelListEdit,
+  handleDragOver, handleDrop, handleDragLeave, handleDragEnd, createTaskDragHandler 
+}) => {
+  const { data } = useGetTasksQuery({ boardId, listId: list.id });
+  
+  const rawTasks = Array.isArray(data) ? data : [];
+  const tasks = rawTasks.map(t => ({
+    ...t,
+    title: t.name,
+    text: t.name,
+    content: t.name,
+    active: t.isActive
+  }));
+  
+  const [editList] = useEditListMutation();
+  const [deleteList] = useDeleteListMutation();
+  const [createTask] = useCreateTaskMutation();
+  const [editTask] = useEditTaskMutation();
+  const [deleteTask] = useDeleteTaskMutation();
+
+  const handleTaskToggle = (listId, taskId) => {
+    const task = tasks.find(t => t.id === taskId);
+    if (task) {
+      editTask({ boardId, listId, taskId, name: task.name, isActive: !task.isActive })
+        .unwrap().catch(() => {});
+    }
+  };
+
+  const handleTaskUpdate = (listId, taskId, payload) => {
+    const task = tasks.find(t => t.id === taskId);
+    if (!task) return;
+    let newName = task.name;
+    if (typeof payload === 'string') newName = payload;
+    else if (payload && typeof payload === 'object') {
+      newName = payload.name || payload.title || payload.text || task.name;
+    }
+    editTask({ boardId, listId, taskId, name: newName || 'Без названия', isActive: task.isActive })
+      .unwrap().catch(() => {});
+  };
+
+  const handleTaskDelete = (arg1, arg2) => {
+    const safeListId = arg2 ? arg1 : list.id;
+    const safeTaskId = arg2 ? arg2 : arg1;
+    deleteTask({ boardId, listId: safeListId, taskId: safeTaskId })
+      .unwrap().catch(() => {});
+  };
+
+  const handleTaskCreate = (listId, payload) => {
+    let newTaskName = 'Новая задача';
+    if (typeof payload === 'string') newTaskName = payload;
+    else if (payload && payload.name) newTaskName = payload.name;
+    else if (payload && payload.title) newTaskName = payload.title;
+    
+    createTask({ listId, name: newTaskName })
+      .unwrap().catch(() => {});
+  };
+
+  const listProps = {
+    list: { ...list, tasks: tasks },
+    tasks: tasks,
+    isEditing: editingListId === list.id,
+    isDragOver: draggingOverListId === list.id,
+    onDragOver: (e) => handleDragOver(e, list.id),
+    onDrop: (e) => handleDrop(e, list.id),
+    onTaskDragStart: (taskId) => createTaskDragHandler(taskId, list.id),
+  };
+
+  const listCardCommonProps = {
+    onEditStart: handleEditListStart,
+    onEditSave: (listId, newName) => {
+      handleCancelListEdit(); 
+      editList({ boardId, listId, name: newName || 'Колонка' })
+        .unwrap().catch(() => {});
+    },
+    onEditCancel: handleCancelListEdit,
+    onDelete: (listId) => deleteList({ boardId, listId })
+      .unwrap().catch(() => {}),
+    onTaskCreate: handleTaskCreate,
+    onTaskUpdate: handleTaskUpdate,
+    onTaskDelete: handleTaskDelete,
+    onTaskToggle: handleTaskToggle,
+    onDragLeave: handleDragLeave,
+    onDragEnd: handleDragEnd,
+  };
+
+  return <ListCard key={list.id} {...listProps} {...listCardCommonProps} />;
+};
+
 const BoardPage = () => {
   const { boardId } = useParams();
-  
-  const {
-    boardName, updateBoardName, lists, createList, updateList, 
-    deleteList, createTask, updateTask, deleteTask, moveTask
-  } = useBoardContent(boardId);
+
+  const { data: boards = [] } = useGetBoardsQuery();
+  const [editBoard] = useEditBoardMutation();
+  const currentBoard = boards.find(b => b.id === boardId);
+  const boardName = currentBoard ? currentBoard.name : 'Загрузка...';
+
+  const { data: lists = [] } = useGetListsQuery(boardId);
+  const [createList] = useCreateListMutation();
 
   const [isEditingBoardName, setIsEditingBoardName] = useState(false);
   const [editedBoardName, setEditedBoardName] = useState('');
+  
   const [isCreatingList, setIsCreatingList] = useState(false);
   const [newListName, setNewListName] = useState('');
   const [editingListId, setEditingListId] = useState(null);
   const [draggingOverListId, setDraggingOverListId] = useState(null);
 
-  const handleStartEditBoardName = () => {
-    setIsEditingBoardName(true);
-    setEditedBoardName(boardName);
-  };
-
+  const handleStartEditBoardName = () => { setIsEditingBoardName(true); setEditedBoardName(boardName); };
+  const handleCancelEditBoardName = () => { setIsEditingBoardName(false); setEditedBoardName(''); };
+  
   const handleSaveBoardName = () => {
-    if (editedBoardName.trim()) {
-      updateBoardName(editedBoardName.trim()); 
+    if (editedBoardName && editedBoardName.trim()) {
+      editBoard({ boardId, name: editedBoardName.trim() });
     }
     setIsEditingBoardName(false);
   };
 
-  const handleCancelEditBoardName = () => {
-    setIsEditingBoardName(false);
-    setEditedBoardName('');
-  };
-
   const handleCreateList = () => {
-    if (newListName.trim()) {
-      createList(newListName.trim()); 
+    if (newListName && newListName.trim()) {
+      createList({ boardId, name: newListName.trim() });
       setNewListName('');
       setIsCreatingList(false);
     }
   };
 
-  const handleEditListStart = (listId) => { setEditingListId(listId); };
-  const handleCancelListEdit = () => { setEditingListId(null); };
-
-  const handleSaveListEdit = (listId, newName) => {
-    if (newName.trim()) updateList(listId, { name: newName.trim() });
-    setEditingListId(null);
-  };
-
-  const handleTaskToggle = (listId, taskId) => {
-    const list = lists.find(l => l.id === listId);
-    if (!list) return;
-    const task = list.tasks.find(t => t.id === taskId);
-    if (!task) return;
-    updateTask(listId, taskId, { active: !task.active });
+  const handleKeyPress = (e, action) => {
+    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); action(); }
   };
 
   const handleDragStart = (e, taskId, listId) => {
     e.dataTransfer.setData('taskId', taskId.toString());
     e.dataTransfer.setData('listId', listId.toString());
-    e.dataTransfer.effectAllowed = 'move';
     e.target.classList.add('dragging');
   };
-
-  const handleDragEnd = (e) => {
-    e.target.classList.remove('dragging');
-    setDraggingOverListId(null);
-  };
-
-  const handleDragOver = (e, listId) => {
-    e.preventDefault();
-    e.dataTransfer.dropEffect = 'move';
-    setDraggingOverListId(listId);
-  };
-
-  const handleDragLeave = (e) => {
-    e.preventDefault();
-    setDraggingOverListId(null);
-  };
-
-  const handleDrop = (e, targetListId) => {
-    e.preventDefault();
-    setDraggingOverListId(null);
-    const taskId = parseInt(e.dataTransfer.getData('taskId'));
-    const sourceListId = parseInt(e.dataTransfer.getData('listId'));
-    
-    if (!isNaN(taskId) && !isNaN(sourceListId) && sourceListId !== targetListId) {
-      moveTask(sourceListId, targetListId, taskId);
-    }
-  };
-
-  const createTaskDragHandler = (taskId, listId) => {
-    return (e) => handleDragStart(e, taskId, listId);
-  };
-
-  const handleKeyPress = (e, action) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault();
-      action();
-    }
-  };
-  
-  const listCardCommonProps = useMemo(() => ({
-    onEditStart: handleEditListStart,
-    onEditSave: handleSaveListEdit,
-    onEditCancel: handleCancelListEdit,
-    onDelete: deleteList,
-    onTaskCreate: createTask,
-    onTaskUpdate: updateTask,
-    onTaskDelete: deleteTask,
-    onTaskToggle: handleTaskToggle,
-    onDragLeave: handleDragLeave, 
-    onDragEnd: handleDragEnd,
-  }), [
-    handleEditListStart, handleSaveListEdit, handleCancelListEdit, deleteList, 
-    createTask, updateTask, deleteTask, handleTaskToggle, handleDragLeave, handleDragEnd
-  ]);
-
-  const renderListCard = (list) => {
-    const listProps = {
-      key: list.id,
-      list,
-      isEditing: editingListId === list.id,
-      isDragOver: draggingOverListId === list.id,
-      onDragOver: (e) => handleDragOver(e, list.id),
-      onDrop: (e) => handleDrop(e, list.id),
-      onTaskDragStart: (taskId) => createTaskDragHandler(taskId, list.id),
-    };
-    return <ListCard {...listProps} {...listCardCommonProps} />;
-  };
+  const handleDragEnd = (e) => { e.target.classList.remove('dragging'); setDraggingOverListId(null); };
+  const handleDragOver = (e, listId) => { e.preventDefault(); setDraggingOverListId(listId); };
+  const handleDragLeave = (e) => { e.preventDefault(); setDraggingOverListId(null); };
+  const handleDrop = (e) => { e.preventDefault(); setDraggingOverListId(null); };
+  const createTaskDragHandler = (taskId, listId) => (e) => handleDragStart(e, taskId, listId);
 
   return (
     <div className="board-page">
       <header className="header">
         <div className="header-content">
-          <Link to={ENUM_LINK.BOARDS} className="nav-link">{ENUM_TEXT.NAV_BACK_TO_BOARDS}</Link>
+          <Link to={ENUM_LINK.BOARDS} className="nav-link">
+            {ENUM_TEXT.NAV_BACK_TO_BOARDS}
+          </Link>
         </div>
       </header>
+
       <main className="container">
         <div className="board-header">
           {isEditingBoardName ? (
             <div className="board-name-edit">
               <Input
                 type="text"
-                value={editedBoardName}
+                value={editedBoardName || ''} 
                 onChange={(e) => setEditedBoardName(e.target.value)}
                 onKeyDown={(e) => {
                   if (e.key === 'Enter') handleSaveBoardName();
                   else if (e.key === 'Escape') handleCancelEditBoardName();
                 }}
-                autoFocus
-                fullWidth
+                autoFocus fullWidth
               />
               <div className="board-name-edit-buttons">
                 <Button variant="primary" size="small" onClick={handleSaveBoardName}>{ENUM_TEXT.FORM_SAVE}</Button>
@@ -165,11 +183,29 @@ const BoardPage = () => {
               </div>
             </div>
           ) : (
-            <h1 className="board-title" onClick={handleStartEditBoardName}>{boardName}</h1>
+            <h1 className="board-title" onClick={handleStartEditBoardName}>
+              {boardName}
+            </h1>
           )}
         </div>
+
         <div className="lists-container">
-          {lists.map(renderListCard)}
+          {lists.map(list => (
+            <ListCardWrapper 
+              key={list.id} 
+              list={list} 
+              boardId={boardId}
+              editingListId={editingListId}
+              draggingOverListId={draggingOverListId}
+              handleEditListStart={setEditingListId}
+              handleCancelListEdit={() => setEditingListId(null)}
+              handleDragOver={handleDragOver}
+              handleDrop={handleDrop}
+              handleDragLeave={handleDragLeave}
+              handleDragEnd={handleDragEnd}
+              createTaskDragHandler={createTaskDragHandler}
+            />
+          ))}
           
           {isCreatingList ? (
             <div className="list-card new-list-form">
@@ -177,11 +213,10 @@ const BoardPage = () => {
                 <Input
                   type="text"
                   placeholder={ENUM_TEXT.LIST_NAME_PLACEHOLDER}
-                  value={newListName}
+                  value={newListName || ''} 
                   onChange={(e) => setNewListName(e.target.value)}
                   onKeyPress={(e) => handleKeyPress(e, handleCreateList)}
-                  autoFocus
-                  fullWidth
+                  autoFocus fullWidth
                 />
               </div>
               <div className="list-form-actions">

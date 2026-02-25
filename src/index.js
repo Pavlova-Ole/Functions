@@ -1,6 +1,8 @@
 import React from 'react';
 import { createRoot } from 'react-dom/client';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { Provider } from 'react-redux';
+import { store } from './app/store'; 
 import AuthPage from './pages/AuthPage/AuthPage';
 import MainPage from './pages/MainPage/MainPage';
 import BoardPage from './pages/BoardPage/BoardPage';
@@ -66,6 +68,8 @@ const App = () => {
 
 root.render(
   <React.StrictMode>
-    <App />
+    <Provider store={store}>
+      <App />
+    </Provider>
   </React.StrictMode>
 );

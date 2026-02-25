@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { useBoards } from '../../features/boards/lib/useBoards';
 import { useAuth } from '../../features/auth/lib/useAuth';
 import { BoardCard } from '../../features/boards/ui/BoardCard/BoardCard';
 import { BoardModal } from '../../features/boards/ui/BoardModal/BoardModal';
@@ -7,16 +6,27 @@ import { Button } from '../../shared/ui/Button/Button';
 import { ENUM_TEXT } from '../../shared/constants';
 import styles from './MainPage.module.css';
 
+import { 
+  useGetBoardsQuery, 
+  useCreateBoardMutation, 
+  useEditBoardMutation, 
+  useDeleteBoardMutation 
+} from '../../shared/api/apiSlice';
+
 const MainPage = () => {
-  const { boards, isLoading, createBoard, deleteBoard, updateBoard } = useBoards();
   const { user, logout } = useAuth();
+  const { data: boards = [], isLoading } = useGetBoardsQuery();
   
+  const [createBoard] = useCreateBoardMutation();
+  const [editBoard] = useEditBoardMutation();
+  const [deleteBoard] = useDeleteBoardMutation();
+
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingBoardId, setEditingBoardId] = useState(null);
 
-  const handleCreateBoard = (boardData) => {
+  const handleCreateBoard = async (boardData) => {
     if (boardData?.name?.trim()) {
-      createBoard(boardData);
+      await createBoard(boardData.name.trim());
       setIsModalOpen(false);
     }
   };
@@ -25,16 +35,16 @@ const MainPage = () => {
     setEditingBoardId(boardId);
   };
 
-  const handleSaveEdit = (boardId, newName) => {
+  const handleSaveEdit = async (boardId, newName) => {
     if (newName.trim()) {
-      updateBoard(boardId, { name: newName.trim() });
+      await editBoard({ boardId, name: newName.trim() });
       setEditingBoardId(null);
     }
   };
 
-  const handleDeleteBoard = (boardId) => {
+  const handleDeleteBoard = async (boardId) => {
     if (window.confirm(ENUM_TEXT.BOARD_DELETE_CONFIRM)) {
-      deleteBoard(boardId);
+      await deleteBoard(boardId);
       if (editingBoardId === boardId) {
         setEditingBoardId(null);
       }
@@ -77,24 +87,28 @@ const MainPage = () => {
         <BoardModal isOpen={isModalOpen} onClose={closeModal} onCreateBoard={handleCreateBoard} />
 
         <div className={styles.boardsContainer}>
-          <div className={styles.boardsGrid}>
-            {boards.length === 0 ? (
-              <div className={styles.emptyState}>
-                <p>{ENUM_TEXT.BOARD_EMPTY}</p>
-              </div>
-            ) : (
-              boards.map(board => (
-                <BoardCard
-                  key={board.id}
-                  board={board}
-                  onEdit={handleEditBoard}
-                  onDelete={handleDeleteBoard}
-                  onSaveEdit={handleSaveEdit}
-                  isEditing={editingBoardId === board.id}
-                />
-              ))
-            )}
-          </div>
+          {isLoading ? (
+             <p>Загрузка досок...</p>
+          ) : (
+            <div className={styles.boardsGrid}>
+              {boards.length === 0 ? (
+                <div className={styles.emptyState}>
+                  <p>{ENUM_TEXT.BOARD_EMPTY}</p>
+                </div>
+              ) : (
+                boards.map(board => (
+                  <BoardCard
+                    key={board.id}
+                    board={board}
+                    onEdit={handleEditBoard}
+                    onDelete={handleDeleteBoard}
+                    onSaveEdit={handleSaveEdit}
+                    isEditing={editingBoardId === board.id}
+                  />
+                ))
+              )}
+            </div>
+          )}
         </div>
       </main>
     </div>
