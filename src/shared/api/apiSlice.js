@@ -36,7 +36,6 @@ export const apiSlice = createApi({
       query: (boardId) => ({ url: '/board/deleteBoard', method: 'DELETE', params: { boardId } }),
       invalidatesTags: ['Board'],
     }),
-
     getLists: builder.query({
       query: (boardId) => ({ url: '/list/list', method: 'GET', params: { boardId } }),
       providesTags: ['List'],
@@ -56,27 +55,54 @@ export const apiSlice = createApi({
 
     getTasks: builder.query({
       query: ({ boardId, listId }) => ({ url: '/task/task', method: 'GET', params: { boardId, listId } }),
-      providesTags: (result, error, { listId }) => [{ type: 'Task', id: listId }],
+      providesTags: (result, error, { listId }) => [{ type: 'Task', id: listId }, 'Task'],
     }),
     createTask: builder.mutation({
       query: ({ listId, name }) => ({ url: '/task/createTask', method: 'POST', data: { listId, name } }),
-      invalidatesTags: (result, error, { listId }) => [{ type: 'Task', id: listId }],
+      invalidatesTags: (result, error, { listId }) => [{ type: 'Task', id: listId }, 'Task'],
     }),
     editTask: builder.mutation({
-      query: ({ boardId, listId, taskId, name, isActive }) => ({ 
-        url: '/task/editTask', 
-        method: 'PUT', 
-        data: { boardId, listId, taskId, name, isActive } 
+      query: ({ boardId, listId, taskId, name, isActive }) => ({
+        url: '/task/editTask',
+        method: 'PUT',
+        data: { boardId, listId, taskId, name, isActive }
       }),
-      invalidatesTags: (result, error, { listId }) => [{ type: 'Task', id: listId }],
+      invalidatesTags: (result, error, { listId }) => [{ type: 'Task', id: listId }, 'Task'],
     }),
     deleteTask: builder.mutation({
-      query: ({ boardId, listId, taskId }) => ({ 
-        url: '/task/deleteTask', 
-        method: 'DELETE', 
-        params: { boardId, listId, taskId } 
+      query: ({ boardId, listId, taskId }) => ({
+        url: '/task/deleteTask',
+        method: 'DELETE',
+        params: { boardId, listId, taskId }
       }),
-      invalidatesTags: (result, error, { listId }) => [{ type: 'Task', id: listId }],
+      invalidatesTags: (result, error, { listId }) => [{ type: 'Task', id: listId }, 'Task'],
+    }),
+
+    reorderTask: builder.mutation({
+      query: ({ boardId, taskId, order, newListId }) => ({
+        url: '/task/reorderTask',
+        method: 'PUT',
+        data: { boardId, taskId, order, newListId }
+      }),
+      invalidatesTags: ['Task'],
+    }),
+
+    reorderList: builder.mutation({
+      query: ({ boardId, listId, order }) => ({
+        url: '/list/reorderList',
+        method: 'PUT',
+        data: { boardId, listId, order }
+      }),
+      invalidatesTags: ['List'],
+    }),
+
+    reorderBoard: builder.mutation({
+      query: ({ boardId, order }) => ({
+        url: '/board/reorderBoard',
+        method: 'PUT',
+        data: { boardId, order }
+      }),
+      invalidatesTags: ['Board'],
     }),
   }),
 });
@@ -85,4 +111,5 @@ export const {
   useGetBoardsQuery, useCreateBoardMutation, useEditBoardMutation, useDeleteBoardMutation,
   useGetListsQuery, useCreateListMutation, useEditListMutation, useDeleteListMutation,
   useGetTasksQuery, useCreateTaskMutation, useEditTaskMutation, useDeleteTaskMutation,
+  useReorderTaskMutation, useReorderListMutation, useReorderBoardMutation
 } = apiSlice;

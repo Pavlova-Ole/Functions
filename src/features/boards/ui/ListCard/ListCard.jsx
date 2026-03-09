@@ -24,6 +24,8 @@ export const ListCard = ({
   onTaskDragStart,
   onTaskDragEnd, 
   onDrop,
+  onListDragStart,
+  onListDragEnd,
   children
 }) => {
   const [newTaskText, setNewTaskText] = useState('');
@@ -79,18 +81,10 @@ export const ListCard = ({
             fullWidth
           />
           <div className={styles.editActions}>
-            <Button 
-              variant="primary" 
-              size="small"
-              onClick={handleEditSave}
-            >
+            <Button variant="primary" size="small" onClick={handleEditSave}>
               {ENUM_TEXT.FORM_SAVE}
             </Button>
-            <Button 
-              variant="secondary" 
-              size="small"
-              onClick={() => onEditCancel && onEditCancel(list.id)} 
-            >
+            <Button variant="secondary" size="small" onClick={() => onEditCancel && onEditCancel(list.id)}>
               {ENUM_TEXT.FORM_CANCEL}
             </Button>
           </div>
@@ -102,24 +96,21 @@ export const ListCard = ({
   return (
     <div 
       className={`${styles.listCard} ${isDragOver ? styles.dragOver : ''}`}
-      onDragOver={onDragOver}
+      draggable="true"
+      style={{ cursor: 'grab' }}
+      onDragStart={onListDragStart}
+      onDragEnd={onListDragEnd}
+      onDragOver={(e) => { e.preventDefault(); if (onDragOver) onDragOver(e); }}
       onDragLeave={onDragLeave}
       onDrop={onDrop}
     >
       <div className={styles.listHeader}>
         <h3>{list.name}</h3>
         <div className={styles.listActions}>
-          <IconButton 
-            onClick={(e) => handleIconClick(e, () => onEditStart && onEditStart(list.id))}
-            title={ENUM_TEXT.FORM_EDIT}
-          >
+          <IconButton onClick={(e) => handleIconClick(e, () => onEditStart && onEditStart(list.id))} title={ENUM_TEXT.FORM_EDIT}>
             <EditIcon size={18} />
           </IconButton>
-        
-          <IconButton 
-            onClick={(e) => handleIconClick(e, () => onDelete && onDelete(list.id))}
-            title={ENUM_TEXT.FORM_DELETE}
-          >
+          <IconButton onClick={(e) => handleIconClick(e, () => onDelete && onDelete(list.id))} title={ENUM_TEXT.FORM_DELETE}>
             <DeleteIcon size={18} />
           </IconButton>
         </div>
@@ -131,17 +122,25 @@ export const ListCard = ({
             <p>{ENUM_TEXT.TASK_NO_TASKS}</p>
           </div>
         ) : (
-          list.tasks.map(task => (
-            <TaskItem
+          list.tasks.map((task, index) => (
+            <div 
               key={task.id}
-              task={task}
-              listId={list.id}
-              onUpdate={(updates) => onTaskUpdate(list.id, task.id, updates)}
-              onDelete={() => onTaskDelete(list.id, task.id)}
-              onToggle={() => onTaskToggle(list.id, task.id)}
-              onDragStart={onTaskDragStart ? onTaskDragStart(task.id) : undefined} 
-              onDragEnd={onTaskDragEnd}
-            />
+              onDragOver={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                if (onDragOver) onDragOver(e, index);
+              }}
+            >
+              <TaskItem
+                task={task}
+                listId={list.id}
+                onUpdate={(updates) => onTaskUpdate(list.id, task.id, updates)}
+                onDelete={() => onTaskDelete(list.id, task.id)}
+                onToggle={() => onTaskToggle(list.id, task.id)}
+                onDragStart={onTaskDragStart ? onTaskDragStart(task.id, index) : undefined} 
+                onDragEnd={onTaskDragEnd}
+              />
+            </div>
           ))
         )}
       </div>
@@ -155,16 +154,10 @@ export const ListCard = ({
           onKeyDown={handleTaskKeyPress}
           fullWidth
         />
-        <Button 
-          variant="primary" 
-          size="small"
-          onClick={handleCreateTask}
-          disabled={!newTaskText.trim()}
-        >
+        <Button variant="primary" size="small" onClick={handleCreateTask} disabled={!newTaskText.trim()}>
           {ENUM_TEXT.FORM_ADD}
         </Button>
       </div>
-
       {children}
     </div>
   );

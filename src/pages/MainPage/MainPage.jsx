@@ -5,21 +5,22 @@ import { BoardModal } from '../../features/boards/ui/BoardModal/BoardModal';
 import { Button } from '../../shared/ui/Button/Button';
 import { ENUM_TEXT } from '../../shared/constants';
 import styles from './MainPage.module.css';
-
-import { 
-  useGetBoardsQuery, 
-  useCreateBoardMutation, 
-  useEditBoardMutation, 
-  useDeleteBoardMutation 
+import {
+  useGetBoardsQuery,
+  useCreateBoardMutation,
+  useEditBoardMutation,
+  useDeleteBoardMutation,
+  useReorderBoardMutation
 } from '../../shared/api/apiSlice';
 
 const MainPage = () => {
   const { user, logout } = useAuth();
   const { data: boards = [], isLoading } = useGetBoardsQuery();
-  
+
   const [createBoard] = useCreateBoardMutation();
   const [editBoard] = useEditBoardMutation();
   const [deleteBoard] = useDeleteBoardMutation();
+  const [reorderBoard] = useReorderBoardMutation();
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingBoardId, setEditingBoardId] = useState(null);
@@ -96,15 +97,46 @@ const MainPage = () => {
                   <p>{ENUM_TEXT.BOARD_EMPTY}</p>
                 </div>
               ) : (
-                boards.map(board => (
-                  <BoardCard
+                boards.map((board, index) => (
+                  <div
                     key={board.id}
-                    board={board}
-                    onEdit={handleEditBoard}
-                    onDelete={handleDeleteBoard}
-                    onSaveEdit={handleSaveEdit}
-                    isEditing={editingBoardId === board.id}
-                  />
+                    draggable="true"
+                    style={{ cursor: 'grab' }}
+                    onDragStart={(e) => {
+                      e.dataTransfer.setData('type', 'board');
+                      e.dataTransfer.setData('boardId', board.id);
+                      setTimeout(() => e.target.style.opacity = '0.5', 0);
+                    }}
+                    onDragEnd={(e) => {
+                      e.target.style.opacity = '1';
+                    }}
+                    onDragOver={(e) => e.preventDefault()}
+                    onDrop={async (e) => {
+                      e.preventDefault();
+                      const type = e.dataTransfer.getData('type');
+                      if (type !== 'board') return;
+                      
+                      const draggedBoardId = e.dataTransfer.getData('boardId');
+                      if (draggedBoardId && draggedBoardId !== board.id) {
+                        try {
+                          await reorderBoard({ 
+                            boardId: draggedBoardId, 
+                            order: index 
+                          }).unwrap();
+                        } catch (error) {
+                          console.error('Ошибка сортировки досок:', error);
+                        }
+                      }
+                    }}
+                  >
+                    <BoardCard
+                      board={board}
+                      onEdit={handleEditBoard}
+                      onDelete={handleDeleteBoard}
+                      onSaveEdit={handleSaveEdit}
+                      isEditing={editingBoardId === board.id}
+                    />
+                  </div>
                 ))
               )}
             </div>
