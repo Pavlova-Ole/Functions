@@ -318,3 +318,7 @@
   font-size: 18px;
   margin: 0;
 }
+
+.draggableBoard {
+  cursor: grab;
+}

@@ -68,6 +68,22 @@ export const ListCard = ({
     }
   };
 
+  const handleDragOver = (e) => {
+    e.preventDefault()
+    if (onDragOver){
+      onDragOver(e)
+    }
+  }
+
+  const handleTaskDragOver = (e, index) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (onDragOver) {
+      onDragOver(e, index);
+    }
+  }
+
+
   if (isEditing) {
     return (
       <div className={styles.listCard}>
@@ -97,10 +113,9 @@ export const ListCard = ({
     <div 
       className={`${styles.listCard} ${isDragOver ? styles.dragOver : ''}`}
       draggable="true"
-      style={{ cursor: 'grab' }}
       onDragStart={onListDragStart}
       onDragEnd={onListDragEnd}
-      onDragOver={(e) => { e.preventDefault(); if (onDragOver) onDragOver(e); }}
+      onDragOver={handleDragOver}
       onDragLeave={onDragLeave}
       onDrop={onDrop}
     >
@@ -126,9 +141,7 @@ export const ListCard = ({
             <div 
               key={task.id}
               onDragOver={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                if (onDragOver) onDragOver(e, index);
+                handleTaskDragOver(e, index);
               }}
             >
               <TaskItem

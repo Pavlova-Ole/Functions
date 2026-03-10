@@ -101,7 +101,7 @@ const MainPage = () => {
                   <div
                     key={board.id}
                     draggable="true"
-                    style={{ cursor: 'grab' }}
+                    className={styles.draggableBoard}
                     onDragStart={(e) => {
                       e.dataTransfer.setData('type', 'board');
                       e.dataTransfer.setData('boardId', board.id);
